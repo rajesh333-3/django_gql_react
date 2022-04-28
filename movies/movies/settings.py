@@ -14,6 +14,7 @@ from pathlib import Path
 import django
 from django.utils.encoding import force_str
 django.utils.encoding.force_text = force_str
+from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -41,14 +42,25 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'graphene_django',
+    'graphql_jwt',
+    'graphene_django.filter',
   #  'api.apps.ApiConfig',
     'api'
+    
 ]
 
 GRAPHENE = {
-    'SCHEMA': 'movies.schema.schema'
+    'SCHEMA': 'movies.schema.schema',
+    "MIDDLEWARE": [
+        "graphql_jwt.middleware.JSONWebTokenMiddleware",
+    ],
 }
 
+GRAPHQL_JWT = {
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_EXPIRATION_DELTA': timedelta(minutes=5),
+    'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=7)
+}
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -57,6 +69,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+AUTHENTICATION_BACKENDS = [
+    "graphql_jwt.backends.JSONWebTokenBackend",
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
 ROOT_URLCONF = 'movies.urls'
